@@ -1,0 +1,60 @@
+```{r}
+library(plotly)
+library(ggplot2)
+data(diamonds)
+head(diamonds)
+```
+```{r}
+fig <- plot_ly(
+  data = diamonds,
+  type = 'scatter',
+  x = ~carat,
+  y = ~price,
+  text = ~paste("Cut:", cut, "<br>Carat:", carat, "<br>Price:", price),
+  hoverinfo = 'text',
+  mode = 'markers',
+  transforms = list(
+    list(
+      type = 'filter',
+      target = ~cut,
+      operation = '=',
+      value = unique(diamonds$cut)[1] # Початкове значення
+    )
+  )
+) %>%
+  layout(
+    updatemenus = list(
+      list(
+        buttons = lapply(
+          unique(diamonds$cut),
+          function(cut_value) {
+            list(
+              method = 'restyle',
+              args = list('transforms[0].value', cut_value),
+              label = cut_value
+            )
+          }
+        ),
+        direction = 'down',
+        x = -0.1,
+        y = 0.8,
+        showactive = TRUE
+      )
+    )
+  )
+
+fig
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
