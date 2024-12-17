@@ -1,0 +1,52 @@
+```{r}
+# Load required libraries
+library(ggplot2)   # For the diamonds dataset
+library(plotly)    # For interactive visualizations
+
+# Load the diamonds dataset
+data(diamonds)
+
+# Select numerical variables only
+numeric_columns <- sapply(diamonds, is.numeric)
+diamonds_numeric <- diamonds[, numeric_columns]
+
+# View the first few rows of numerical data
+head(diamonds_numeric)
+```
+
+```{r}
+# Calculate the correlation matrix
+correlation_matrix <- cor(diamonds_numeric, use = "complete.obs")
+
+# View the correlation matrix (optional)
+correlation_matrix
+```
+
+```{r}
+# Function to create a heatmap
+create_heatmap <- function(cor_matrix, color_scale, title) {
+  plot_ly(
+    x = colnames(cor_matrix), 
+    y = rownames(cor_matrix),
+    z = cor_matrix, 
+    type = "heatmap",
+    colorscale = color_scale,          # Apply color scale
+    text = round(cor_matrix, 2),       # Display numbers
+    texttemplate = "%{text}"           # Format numbers
+  ) %>%
+    layout(
+      title = title,
+      xaxis = list(title = "Variables"),
+      yaxis = list(title = "Variables")
+    )
+}
+
+# Create heatmap with a diverging RdBu color scale
+create_heatmap(correlation_matrix, "RdBu", "Diverging Color Scale: RdBu")
+```
+
+```{r}
+# Create heatmap with a sequential Viridis color scale
+create_heatmap(correlation_matrix, "Viridis", "Sequential Color Scale: Viridis")
+```
+
