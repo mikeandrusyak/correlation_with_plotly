@@ -1,0 +1,156 @@
+```{r}
+# Load the ggplot2 package to access the diamonds dataset
+library(ggplot2)
+
+# Load the plotly package for interactive visualizations
+library(plotly)
+
+# Load the diamonds dataset
+data(diamonds)
+
+# View the first few rows of the dataset
+head(diamonds)
+``` 
+
+```{r}
+# Identify numerical columns in the dataset
+numeric_columns <- sapply(diamonds, is.numeric)
+
+# Create a new dataframe with only numerical variables
+diamonds_numeric <- diamonds[, numeric_columns]
+```
+
+```{r}
+# Compute the correlation matrix
+correlation_matrix <- cor(diamonds_numeric, use = "complete.obs")
+```
+
+```{r}
+# Create a simple function to generate an interactive heatmap with numbers
+create_correlation_heatmap <- function(correlation_matrix) {
+  plot_ly(
+    x = colnames(correlation_matrix),   # Variable names for the x-axis
+    y = rownames(correlation_matrix),   # Variable names for the y-axis
+    z = correlation_matrix,             # Correlation coefficients as z-values
+    type = "heatmap",                   # Specify that we want a heatmap
+    colorscale = "RdBu",                # Use a red-blue color scale
+    reversescale = TRUE,                # Reverse the color scale for red-positive correlations
+    text = round(correlation_matrix, 2), # Add rounded correlation values as text
+    texttemplate = "%{text}"            # Display numbers on the heatmap
+  ) %>%
+    layout(
+      title = "Interactive Correlation Heatmap",
+      xaxis = list(title = "Variables"),
+      yaxis = list(title = "Variables")
+    )
+}
+
+# Call the function to display the heatmap
+create_correlation_heatmap(correlation_matrix)
+```
+
+
+```{r}
+# Example: Heatmap of average diamond prices by cut and clarity
+library(dplyr)
+time_data <- diamonds %>%
+  group_by(cut, clarity) %>%
+  summarise(avg_price = mean(price), .groups = "drop")
+
+plot_ly(
+  data = time_data,
+  x = ~clarity,
+  y = ~cut,
+  z = ~avg_price,
+  type = "heatmap",
+  colorscale = "YlGnBu"
+) %>%
+  layout(
+    title = "Average Price by Diamond Quality and Clarity",
+    xaxis = list(title = "Clarity"),
+    yaxis = list(title = "Cut")
+  )
+```
+
+```{r}
+# Example using the built-in volcano dataset
+plot_ly(
+  z = ~volcano,
+  type = "heatmap",
+  colorscale = "Viridis"
+) %>%
+  layout(
+    title = "Geospatial Heatmap (Volcano Data)"
+  )
+```
+
+```{r}
+# Example: 2D density heatmap of carat and price
+plot_ly(
+  data = diamonds,
+  x = ~carat,
+  y = ~price,
+  type = "histogram2d",
+  colorscale = "Cividis"
+) %>%
+  layout(
+    title = "Density Heatmap of Carat vs. Price",
+    xaxis = list(title = "Carat"),
+    yaxis = list(title = "Price")
+  )
+```
+
+
+```{r}
+# Aggregate data by carat
+avg_price_by_carat <- diamonds %>%
+  group_by(carat = round(carat, 1)) %>%
+  summarise(avg_price = mean(price), .groups = "drop")
+
+# Create line plot
+plot_ly(
+  data = avg_price_by_carat,
+  x = ~carat,
+  y = ~avg_price,
+  type = "scatter",
+  mode = "lines",
+  line = list(color = "green")
+) %>%
+  layout(
+    title = "Line Plot: Average Price by Carat",
+    xaxis = list(title = "Carat"),
+    yaxis = list(title = "Average Price")
+  )
+```
+
+```{r}
+plot_ly(
+  data = avg_price_by_carat,
+  x = ~carat,
+  y = ~avg_price,
+  type = "scatter",
+  mode = "markers+lines",
+  marker = list(color = "orange", size = 8),
+  line = list(color = "blue")
+) %>%
+  layout(
+    title = "Scatter and Line Plot: Average Price by Carat",
+    xaxis = list(title = "Carat"),
+    yaxis = list(title = "Average Price")
+  )
+```
+
+```{r}
+avg_price_by_cut <- diamonds %>%
+  group_by(cut, carat = round(carat, 1)) %>%
+  summarise(avg_price = mean(price), .groups = "drop")
+
+plot_ly(data = avg_price_by_cut, x = ~carat, y = ~avg_price, color = ~cut, type = "scatter", mode = "lines") %>%
+  layout(
+    title = "Line Plot: Average Price by Carat for Diamond Quality",
+    xaxis = list(title = "Carat"),
+    yaxis = list(title = "Average Price")
+  )
+```
+
+
