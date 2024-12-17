@@ -9,28 +9,29 @@ head(iris)
 
 
 ```{r}
-# Function for creating regression lines
+# A function to calculate regression and correlation lines
 regression_lines <- function(data, species) {
   data_sp <- data %>% filter(Species == species)
   model <- lm(Petal.Length ~ Sepal.Length, data = data_sp)
   
+  # We generate a range for the regression line
   x_range <- seq(min(data_sp$Sepal.Length), max(data_sp$Sepal.Length), length.out = 100)
   y_range <- predict(model, newdata = data.frame(Sepal.Length = x_range))
   
-  data.frame(Sepal.Length = x_range, Petal.Length = y_range, Species = species)
+  # We calculate the correlation
+  cor_value <- round(cor(data_sp$Sepal.Length, data_sp$Petal.Length), 2)
+  
+  data.frame(Sepal.Length = x_range, Petal.Length = y_range, Species = species, Correlation = cor_value)
 }
 ```
 
 
 ```{r}
-# We generate regression lines for each species
+# We generate regression lines and correlation
 lines_setosa <- regression_lines(iris, "setosa")
 lines_versicolor <- regression_lines(iris, "versicolor")
 lines_virginica <- regression_lines(iris, "virginica")
-```
 
-
-```{r}
 # Basic dot plot with filter
 fig <- plot_ly(
   data = iris,
@@ -45,7 +46,7 @@ fig <- plot_ly(
       type = 'filter',
       target = ~Species,
       operation = '=',
-      value = unique(iris$Species)
+      value = "setosa"
     )
   )
 )
@@ -53,30 +54,28 @@ fig <- plot_ly(
 
 
 ```{r}
-# We add regression lines with separate colors
+# We add regression lines
 fig <- fig %>%
   add_lines(
     data = lines_setosa,
     x = ~Sepal.Length,
     y = ~Petal.Length,
-    name = "Regression - Setosa",
-    showlegend = TRUE
+    line = list(color = 'blue', width = 1),
+    name = paste("Setosa (r =", lines_setosa$Correlation[1], ")")
   ) %>%
   add_lines(
     data = lines_versicolor,
     x = ~Sepal.Length,
     y = ~Petal.Length,
     line = list(color = 'orange', width = 1),
-    name = "Regression - Versicolor",
-    showlegend = TRUE
+    name = paste("Versicolor (r =", lines_versicolor$Correlation[1], ")")
   ) %>%
   add_lines(
     data = lines_virginica,
     x = ~Sepal.Length,
     y = ~Petal.Length,
     line = list(color = 'green', width = 1),
-    name = "Regression - Virginica",
-    showlegend = TRUE
+    name = paste("Virginica (r =", lines_virginica$Correlation[1], ")")
   )
 ```
 
@@ -85,7 +84,7 @@ fig <- fig %>%
 # We add a menu for filtering
 fig <- fig %>%
   layout(
-    title = "Dynamic Regression Lines with Filter",
+    title = "Dynamic Lines with Correlation Coefficients",
     xaxis = list(title = "Sepal Length (cm)"),
     yaxis = list(title = "Petal Length (cm)"),
     updatemenus = list(
