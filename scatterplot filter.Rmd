@@ -1,60 +1,125 @@
 ```{r}
 library(plotly)
-library(ggplot2)
-data(diamonds)
-head(diamonds)
+library(dplyr)
+
+# Loading data Iris
+data(iris)
+head(iris)
 ```
+
+
 ```{r}
+# Function for creating regression lines
+regression_lines <- function(data, species) {
+  data_sp <- data %>% filter(Species == species)
+  model <- lm(Petal.Length ~ Sepal.Length, data = data_sp)
+  
+  x_range <- seq(min(data_sp$Sepal.Length), max(data_sp$Sepal.Length), length.out = 100)
+  y_range <- predict(model, newdata = data.frame(Sepal.Length = x_range))
+  
+  data.frame(Sepal.Length = x_range, Petal.Length = y_range, Species = species)
+}
+```
+
+
+```{r}
+# We generate regression lines for each species
+lines_setosa <- regression_lines(iris, "setosa")
+lines_versicolor <- regression_lines(iris, "versicolor")
+lines_virginica <- regression_lines(iris, "virginica")
+```
+
+
+```{r}
+# Basic dot plot with filter
 fig <- plot_ly(
-  data = diamonds,
+  data = iris,
+  x = ~Sepal.Length,
+  y = ~Petal.Length,
+  color = ~Species,
+  colors = c('blue', 'orange', 'green'),
   type = 'scatter',
-  x = ~carat,
-  y = ~price,
-  text = ~paste("Cut:", cut, "<br>Carat:", carat, "<br>Price:", price),
-  hoverinfo = 'text',
   mode = 'markers',
   transforms = list(
     list(
       type = 'filter',
-      target = ~cut,
+      target = ~Species,
       operation = '=',
-      value = unique(diamonds$cut)[1] # Початкове значення
+      value = unique(iris$Species)
     )
   )
-) %>%
+)
+```
+
+
+```{r}
+# We add regression lines with separate colors
+fig <- fig %>%
+  add_lines(
+    data = lines_setosa,
+    x = ~Sepal.Length,
+    y = ~Petal.Length,
+    name = "Regression - Setosa",
+    showlegend = TRUE
+  ) %>%
+  add_lines(
+    data = lines_versicolor,
+    x = ~Sepal.Length,
+    y = ~Petal.Length,
+    line = list(color = 'orange', width = 1),
+    name = "Regression - Versicolor",
+    showlegend = TRUE
+  ) %>%
+  add_lines(
+    data = lines_virginica,
+    x = ~Sepal.Length,
+    y = ~Petal.Length,
+    line = list(color = 'green', width = 1),
+    name = "Regression - Virginica",
+    showlegend = TRUE
+  )
+```
+
+
+```{r}
+# We add a menu for filtering
+fig <- fig %>%
   layout(
+    title = "Dynamic Regression Lines with Filter",
+    xaxis = list(title = "Sepal Length (cm)"),
+    yaxis = list(title = "Petal Length (cm)"),
     updatemenus = list(
       list(
-        buttons = lapply(
-          unique(diamonds$cut),
-          function(cut_value) {
-            list(
-              method = 'restyle',
-              args = list('transforms[0].value', cut_value),
-              label = cut_value
-            )
-          }
+        buttons = list(
+          list(
+            method = "restyle",
+            args = list("transforms[0].value", "setosa"),
+            label = "Iris-setosa"
+          ),
+          list(
+            method = "restyle",
+            args = list("transforms[0].value", "versicolor"),
+            label = "Iris-versicolor"
+          ),
+          list(
+            method = "restyle",
+            args = list("transforms[0].value", "virginica"),
+            label = "Iris-virginica"
+          ),
+          list(
+            method = "restyle",
+            args = list("transforms[0].value", unique(iris$Species)),
+            label = "All"
+          )
         ),
-        direction = 'down',
-        x = -0.1,
-        y = 0.8,
+        direction = "down",
+        x = 0.1,
+        y = 1.15,
         showactive = TRUE
       )
     )
   )
 
 fig
-
 ```
-
-
-
-
-
-
-
-
-
-
-
 
