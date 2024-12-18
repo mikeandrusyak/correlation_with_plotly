@@ -1,23 +1,44 @@
-```{r}
-# Loading libraries
+---
+output: html_document
+---
+
+# Correlation Visualization in Small and Large Datasets
+
+## Research Question
+
+**What are we analyzing?**  
+We aim to determine which correlation visualization methods are most effective for small and large datasets.  
+We will use **Heatmaps** for a quick overview of correlations and **Scatter Matrix** plots for a detailed examination of relationships between variables.
+
+---
+
+## Importing Libraries and Preparing the Data
+
+**What the code does:**
+
+•	Imports the necessary libraries for working with data and visualizations.
+```{r,message=FALSE, warning=FALSE}
 library(plotly)
 library(ggplot2)  # For diamonds
 library(dplyr)
 ```
+## Small Dataset: Correlation Heatmap
 
+**What the code does:** 
 
+•	Loads the mtcars dataset.
+
+•	Calculates the correlation matrix for all numeric variables.
 ```{r}
-# 1. Small dataset (mtcars)
 data("mtcars")
 small_data <- mtcars
 
-# Corelation matrix for heatmap
 small_corr <- round(cor(small_data), 2)
 ```
+**What the code does:** 
 
-
+•	Creates a Heatmap to visualize the correlations.
 ```{r}
-# Heatmap for small dataset
 fig1 <- plot_ly(
   data = small_data,
   x = colnames(small_corr),
@@ -39,10 +60,22 @@ fig1 <- plot_ly(
   )
 fig1
 ```
+**About the plot:**
 
+The Heatmap displays the correlations between numeric variables in the mtcars dataset.
 
+•	Yellow color: strong positive correlations.
+
+•	Purple color: strong negative correlations.
+
+This allows for a quick identification of the strongest and weakest relationships.
+
+## Small Dataset: Scatter Matrix
+
+**What the code does:**
+
+Generates a Scatter Matrix for key variables mpg, hp, wt, and qsec in the mtcars dataset.
 ```{r}
-# Scatter Matrix for small dataset
 fig2 <- plot_ly(
   data = small_data,
   type = "splom", 
@@ -56,30 +89,37 @@ fig2 <- plot_ly(
 
 fig2
 ```
+**About the plot:**
 
+The Scatter Matrix visualizes pairwise relationships between key variables in the mtcars dataset, along with their distributions. For example, mpg shows a strong negative correlation with hp and wt.
 
+## Large Dataset: Correlation Heatmap
+
+**What the code does:**
+
+•	Samples 1,000 rows from the diamonds dataset.
+
+•	Computes the correlation matrix for numeric variables.
 ```{r}
-# 2. Великий датасет (diamonds)
 data("diamonds")
-large_data <- diamonds %>% sample_n(1000)  # Вибірка для оптимізації продуктивності
+large_data <- diamonds %>% sample_n(1000)  
 
-# Кореляційна матриця для heatmap (лише числові колонки)
 large_corr <- large_data %>% 
   select_if(is.numeric) %>% 
   cor() %>% 
   round(2)
 ```
+**What the code does:**
 
-
+•	Creates a Heatmap to visualize the correlations.
 ```{r}
-# Heatmap для великого датасету
 fig3 <- plot_ly(
   x = colnames(large_corr),
   y = colnames(large_corr),
   z = large_corr,
   type = "heatmap",
   colorscale = "Viridis",
-  text = round(large_corr, 2), # Додаємо значення кореляції (округлено до 2 знаків)
+  text = round(large_corr, 2), 
   hoverinfo = "x+y+text"
 ) %>%
   layout(
@@ -87,21 +127,29 @@ fig3 <- plot_ly(
     annotations = list(
       x = rep(colnames(large_corr), each = nrow(large_corr)),
       y = rep(colnames(large_corr), ncol(large_corr)),
-      text = as.character(round(large_corr, 2)), # Значення як текст
-      showarrow = FALSE, # Вимикаємо стрілки
-      font = list(size = 12, color = "white") # Налаштовуємо стиль тексту
+      text = as.character(round(large_corr, 2)), 
+      showarrow = FALSE,
+      font = list(size = 12, color = "white") 
     )
   )
+
 fig3
 ```
+**About the plot:**
 
+The Heatmap shows correlations between numeric variables in the diamonds subset. Strong positive correlations are visible between carat and size-related variables (x, y, z), highlighted in yellow.
 
+## Large Dataset: Scatter Matrix
+
+**What the code does:**
+
+•	Generates a Scatter Matrix for all numeric variables in the diamonds dataset sample.
 ```{r}
 numeric_data <- large_data[sapply(large_data, is.numeric)]
 
 fig4 <- plot_ly(
-  data = numeric_data,          # Передаємо вибірку
-  type = "splom",             # Scatterplot matrix
+  data = numeric_data,        
+  type = "splom",   
   dimensions = lapply(names(numeric_data), function(col) {
     list(label = col, values = numeric_data[[col]])
   })
@@ -111,7 +159,24 @@ fig4 <- plot_ly(
     margin = list(b = 50)
   )
 
-# Відображення графіку
 fig4
 ```
+**About the plot:**
 
+The Scatter Matrix for the diamonds dataset sample shows pairwise relationships between numeric variables. For instance, carat has a clear positive linear relationship with x, y, and z.
+
+## Conclusion
+
+**Key Findings:**
+
+**1.	Heatmap:**
+
+•	Effective for quickly assessing correlations in both small and large datasets.
+
+•	Color gradients make it easy to identify the strongest and weakest relationships.
+
+**2.	Scatter Matrix:**
+
+•	More informative for detailed pairwise analysis of variables.
+
+•	Suitable for small datasets or selected subsets of variables in large datasets.
