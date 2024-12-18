@@ -1,0 +1,120 @@
+```{r}
+# Loading libraries
+library(plotly)
+library(ggplot2)  # For diamonds
+library(dplyr)
+```
+
+
+```{r}
+# 1. Small dataset (mtcars)
+data("mtcars")
+small_data <- mtcars
+
+# Corelation matrix for heatmap
+small_corr <- round(cor(small_data), 2)
+```
+
+
+```{r}
+# Heatmap for small dataset
+fig1 <- plot_ly(
+  data = small_data,
+  x = colnames(small_corr),
+  y = colnames(small_corr),
+  z = small_corr,
+  type = "heatmap",
+  colorscale = "Viridis",
+  text = round(small_corr, 2),
+  hoverinfo = "x+y+text"
+) %>%
+  layout(title = "Heatmap of Correlation (Small Dataset: mtcars)",
+    annotations = list(
+      x = rep(colnames(small_corr), each = nrow(small_corr)),
+      y = rep(colnames(small_corr), ncol(small_corr)),
+      text = as.character(round(small_corr, 2)),
+      showarrow = FALSE,
+      font = list(size = 12, color = "white")
+    )
+  )
+fig1
+```
+
+
+```{r}
+# Scatter Matrix for small dataset
+fig2 <- plot_ly(
+  data = small_data,
+  type = "splom", 
+  dimensions = list(
+    list(label = "mpg", values = ~mpg),
+    list(label = "hp", values = ~hp),
+    list(label = "wt", values = ~wt),
+    list(label = "qsec", values = ~qsec)
+  ),
+  showupperhalf = FALSE,   # Показати лише нижню половину
+  diagonal = list(visible = FALSE) # Сховати діагональні графіки
+) %>%
+  layout(title = "Scatter Matrix (Small Dataset: mtcars)")
+
+fig2
+```
+
+
+```{r}
+# 2. Великий датасет (diamonds)
+data("diamonds")
+large_data <- diamonds %>% sample_n(1000)  # Вибірка для оптимізації продуктивності
+
+# Кореляційна матриця для heatmap (лише числові колонки)
+large_corr <- large_data %>% 
+  select_if(is.numeric) %>% 
+  cor() %>% 
+  round(2)
+```
+
+
+```{r}
+# Heatmap для великого датасету
+fig3 <- plot_ly(
+  x = colnames(large_corr),
+  y = colnames(large_corr),
+  z = large_corr,
+  type = "heatmap",
+  colorscale = "Viridis",
+  text = round(large_corr, 2), # Додаємо значення кореляції (округлено до 2 знаків)
+  hoverinfo = "x+y+text"
+) %>%
+  layout(
+    title = "Heatmap of Correlation (Large Dataset: diamonds)",
+    annotations = list(
+      x = rep(colnames(large_corr), each = nrow(large_corr)),
+      y = rep(colnames(large_corr), ncol(large_corr)),
+      text = as.character(round(large_corr, 2)), # Значення як текст
+      showarrow = FALSE, # Вимикаємо стрілки
+      font = list(size = 12, color = "white") # Налаштовуємо стиль тексту
+    )
+  )
+fig3
+```
+
+
+```{r}
+numeric_data <- large_data[sapply(large_data, is.numeric)]
+
+fig4 <- plot_ly(
+  data = numeric_data,          # Передаємо вибірку
+  type = "splom",             # Scatterplot matrix
+  dimensions = lapply(names(numeric_data), function(col) {
+    list(label = col, values = numeric_data[[col]])
+  })
+) %>%
+  layout(
+    title = "Scatter Matrix (Large Dataset: diamonds)",
+    margin = list(b = 50)
+  )
+
+# Відображення графіку
+fig4
+```
+
