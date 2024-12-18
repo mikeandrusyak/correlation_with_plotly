@@ -51,10 +51,7 @@ fig2 <- plot_ly(
     list(label = "hp", values = ~hp),
     list(label = "wt", values = ~wt),
     list(label = "qsec", values = ~qsec)
-  ),
-  showupperhalf = FALSE,   # Показати лише нижню половину
-  diagonal = list(visible = FALSE) # Сховати діагональні графіки
-) %>%
+  )) %>%
   layout(title = "Scatter Matrix (Small Dataset: mtcars)")
 
 fig2
