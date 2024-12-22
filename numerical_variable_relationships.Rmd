@@ -81,9 +81,13 @@ create_correlation_heatmap(correlation_matrix)
 ```
 
 The function takes a correlation matrix as input and:
+
 1. Maps variables to the x and y axes.
-2. Uses a diverging color scale (`RdBu`) to highlight both positive (red) and negative (blue) correlations.
+
+2. Uses a diverging color scale (`RdBu`) to highlight both positive (blue) and negative (red) correlations.
+
 3. Displays rounded correlation values on the heatmap.
+
 4. Creates an interactive visualization where users can hover over cells to view details.
 
 # Step 5: Modify the Dataset and Observe Changes
@@ -102,13 +106,17 @@ create_correlation_heatmap(correlation_matrix_filtered)
 ```
 
 Here:
+
 1. The `filter()` function removes rows where `carat` is 2 or more.
+
 2. A new correlation matrix is calculated using the filtered data.
+
 3. A heatmap is generated for the modified dataset, allowing for comparison with the original heatmap.
 
 # Observations
 
 1. Correlations can shift when the input data is modified. For example, restricting the range of `carat` may reduce the variability in related variables, potentially weakening their correlations.
+
 2. By comparing the heatmaps, you can visually identify which relationships remain strong and which weaken in the filtered dataset.
 
 # Conclusion
