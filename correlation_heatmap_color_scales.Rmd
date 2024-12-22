@@ -1,52 +1,142 @@
-```{r}
-# Load required libraries
+---
+title: "Analyzing the Impact of Color Scales on Correlation Heatmaps"
+output: html_document
+---
+
+# Introduction
+
+This document analyzes how different color scales (sequential and diverging) affect the perception of correlation strength in heatmaps. Using the `diamonds` dataset from the `ggplot2` package, we will:
+
+1. Create two correlation heatmaps separately:
+   - One with a **diverging color scale** (`RdBu`) to emphasize both the direction (positive/negative) and magnitude of correlations.
+   - Another with a **sequential color scale** (`Viridis`) to emphasize the strength of correlations, regardless of their direction.
+2. Compare these visualizations to identify their strengths and weaknesses.
+3. Determine the top 5 strongest positive and negative correlations in the dataset.
+
+---
+
+# Step 1: Load Required Libraries and Data
+
+To begin, we load the necessary libraries and prepare the dataset for analysis. The `diamonds` dataset from the `ggplot2` package contains a mix of numerical and categorical columns. Since correlation requires numerical data, we filter the dataset to include only the numerical columns. This ensures that we can compute meaningful pairwise correlations.
+
+```{r, message=FALSE, warning=FALSE}
+# Load necessary libraries
 library(ggplot2)   # For the diamonds dataset
-library(plotly)    # For interactive visualizations
+library(plotly)    # For creating interactive heatmaps
+library(dplyr)     # For data manipulation
 
 # Load the diamonds dataset
 data(diamonds)
 
-# Select numerical variables only
-numeric_columns <- sapply(diamonds, is.numeric)
-diamonds_numeric <- diamonds[, numeric_columns]
+# Select only numerical columns
+diamonds_numeric <- diamonds[, sapply(diamonds, is.numeric)]
 
-# View the first few rows of numerical data
-head(diamonds_numeric)
+# Display the first few rows of the numerical data
+head(diamonds_numeric)  # Preview the dataset
 ```
 
+In this code block, we loaded three libraries: `ggplot2` for accessing the diamonds dataset, `plotly` for generating interactive heatmaps, and `dplyr` for manipulating data easily. The diamonds dataset is filtered to include only numeric columns using `sapply(diamonds, is.numeric)`, allowing us to calculate correlations in the next step.
+
+---
+
+# Step 2: Calculate the Correlation Matrix
+
+In this step, we calculate the correlation matrix for the numerical columns selected from the diamonds dataset. The correlation matrix provides pairwise correlation coefficients, showing the strength and direction of the relationships between variables.
+
 ```{r}
-# Calculate the correlation matrix
+# Calculate the correlation matrix for numerical columns
 correlation_matrix <- cor(diamonds_numeric, use = "complete.obs")
 
-# View the correlation matrix (optional)
-correlation_matrix
+# Print the correlation matrix
+print(correlation_matrix)  # Display the correlation values
 ```
+
+The `cor` function computes the correlations between all pairs of numerical variables in the dataset. The `use = "complete.obs"` argument ensures that any rows with missing values are excluded from the computation. This step results in a matrix where rows and columns correspond to the variables, and the values represent the correlation coefficients between them.
+
+---
+
+# Step 3: Create a Heatmap with a Diverging Color Scale
+
+Next, we visualize the correlation matrix using a diverging color scale (`RdBu`). Diverging color scales are particularly useful for highlighting the direction of correlations. Strong positive correlations appear in one color (e.g., red), strong negative correlations appear in another (e.g., blue), and neutral correlations are displayed as white.
 
 ```{r}
-# Function to create a heatmap
-create_heatmap <- function(cor_matrix, color_scale, title) {
-  plot_ly(
-    x = colnames(cor_matrix), 
-    y = rownames(cor_matrix),
-    z = cor_matrix, 
-    type = "heatmap",
-    colorscale = color_scale,          # Apply color scale
-    text = round(cor_matrix, 2),       # Display numbers
-    texttemplate = "%{text}"           # Format numbers
-  ) %>%
-    layout(
-      title = title,
-      xaxis = list(title = "Variables"),
-      yaxis = list(title = "Variables")
-    )
-}
-
-# Create heatmap with a diverging RdBu color scale
-create_heatmap(correlation_matrix, "RdBu", "Diverging Color Scale: RdBu")
+# Create a heatmap with a diverging color scale (RdBu)
+plot_ly(
+  x = colnames(correlation_matrix),          # X-axis: variable names
+  y = rownames(correlation_matrix),          # Y-axis: variable names
+  z = correlation_matrix,                    # Z-axis: correlation values
+  type = "heatmap",                         # Heatmap type
+  colorscale = "RdBu",                      # Diverging color scale
+  text = round(correlation_matrix, 2),       # Display rounded correlation values
+  texttemplate = "%{text}"                 # Text formatting
+) %>%
+  layout(
+    title = "Heatmap with Diverging Color Scale (RdBu)",
+    xaxis = list(title = "Variables"),
+    yaxis = list(title = "Variables")
+  )
 ```
+
+This block creates an interactive heatmap using the `plot_ly` function. The `colorscale = "RdBu"` argument applies a diverging color scheme, where red and blue emphasize positive and negative correlations, respectively. Neutral correlations are represented by white, making them easily distinguishable. Rounded correlation values are displayed on the heatmap for clarity.
+
+---
+
+# Step 4: Create a Heatmap with a Sequential Color Scale
+
+We now create another heatmap, this time using a sequential color scale (`Viridis`). Sequential color scales emphasize the strength of correlations without differentiating between positive and negative values.
 
 ```{r}
-# Create heatmap with a sequential Viridis color scale
-create_heatmap(correlation_matrix, "Viridis", "Sequential Color Scale: Viridis")
+# Create a heatmap with a sequential color scale (Viridis)
+plot_ly(
+  x = colnames(correlation_matrix),          # X-axis: variable names
+  y = rownames(correlation_matrix),          # Y-axis: variable names
+  z = correlation_matrix,                    # Z-axis: correlation values
+  type = "heatmap",                         # Heatmap type
+  colorscale = "Viridis",                   # Sequential color scale
+  text = round(correlation_matrix, 2),       # Display rounded correlation values
+  texttemplate = "%{text}"                 # Text formatting
+) %>%
+  layout(
+    title = "Heatmap with Sequential Color Scale (Viridis)",
+    xaxis = list(title = "Variables"),
+    yaxis = list(title = "Variables")
+  )
 ```
 
+This code uses the same approach as before but applies a sequential color scale (`Viridis`). In this scale, darker colors represent lower correlation values, and brighter colors represent higher values. It is particularly effective for highlighting the magnitude of relationships but does not indicate their direction.
+
+---
+
+# Step 5: Identify Top Positive and Negative Correlations
+
+To complement the visual analysis, we identify the strongest positive and negative correlations in the dataset. This involves reshaping the correlation matrix into a long format and sorting the values to find the top correlations.
+
+```{r}
+# Convert the correlation matrix into a data frame for sorting
+correlation_df <- as.data.frame(as.table(correlation_matrix)) %>%
+  filter(Var1 != Var2) %>%            # Exclude diagonal (self-correlations)
+  arrange(desc(Freq))                 # Sort by correlation values
+
+# Top 5 positive correlations
+top_positive <- correlation_df %>% filter(Freq > 0) %>% head(5)
+
+# Top 5 negative correlations
+top_negative <- correlation_df %>% filter(Freq < 0) %>% tail(5)
+
+# Display results
+print("Top 5 Positive Correlations:")
+print(top_positive)
+
+print("Top 5 Negative Correlations:")
+print(top_negative)
+```
+
+In this step, we convert the correlation matrix into a long-format data frame using `as.table`. This allows us to filter out self-correlations (diagonal elements where variables are correlated with themselves) and sort the correlations in descending order. We then extract the top 5 strongest positive and negative correlations for further interpretation.
+
+---
+
+# Analysis and Conclusion
+
+This analysis highlights the impact of different color scales on the interpretation of correlation heatmaps. The diverging color scale (`RdBu`) effectively distinguishes between positive and negative correlations, making it ideal for identifying the direction of relationships. However, it may be visually overwhelming due to its strong contrasts. In contrast, the sequential color scale (`Viridis`) provides a smoother gradient that emphasizes the strength of correlations but does not differentiate their direction. 
+
+The choice of color scale depends on the goals of the analysis. Use diverging scales when the direction of correlations is important and sequential scales when focusing solely on the magnitude of relationships.
