@@ -1,4 +1,17 @@
-```{r}
+---
+title: "Interactive Heatmaps for Correlation Visualization"
+output: html_document
+---
+
+# Introduction
+
+This analysis demonstrates how to create an interactive heatmap of correlations to visualize relationships between numerical variables. The goal is to explore correlation coefficients and observe how they change when the input data is modified. We will use the `diamonds` dataset from the `ggplot2` package and visualize relationships using `plotly` for interactivity.
+
+# Step 1: Load Required Libraries and Dataset
+
+In this step, we load the necessary libraries and the `diamonds` dataset. We then filter the dataset to include only numerical variables, as correlation calculations require numerical data.
+
+```{r, message=FALSE, warning=FALSE}
 # Load the ggplot2 package to access the diamonds dataset
 library(ggplot2)
 
@@ -10,7 +23,13 @@ data(diamonds)
 
 # View the first few rows of the dataset
 head(diamonds)
-``` 
+```
+
+The `diamonds` dataset contains attributes like `carat`, `price`, and `depth`, which are suitable for correlation analysis. The `head()` function provides a quick preview of the dataset.
+
+# Step 2: Select Numerical Variables
+
+We identify and select only the numerical variables from the dataset to compute correlations. This ensures the analysis focuses solely on numerical relationships.
 
 ```{r}
 # Identify numerical columns in the dataset
@@ -20,10 +39,22 @@ numeric_columns <- sapply(diamonds, is.numeric)
 diamonds_numeric <- diamonds[, numeric_columns]
 ```
 
+The `sapply()` function checks each column to determine if it is numeric. We use this information to subset the dataset and create a new dataframe `diamonds_numeric` containing only numerical variables.
+
+# Step 3: Calculate the Correlation Matrix
+
+Next, we calculate the correlation matrix for the selected numerical variables. The correlation matrix quantifies the pairwise relationships between variables, ranging from -1 (perfect negative correlation) to +1 (perfect positive correlation).
+
 ```{r}
 # Compute the correlation matrix
 correlation_matrix <- cor(diamonds_numeric, use = "complete.obs")
 ```
+
+The `cor()` function computes pairwise correlations. Setting `use = "complete.obs"` ensures rows with missing values are excluded.
+
+# Step 4: Create an Interactive Correlation Heatmap
+
+To visualize the correlation matrix interactively, we define a function that generates a heatmap using `plotly`. This heatmap allows users to explore correlations interactively by hovering over the cells.
 
 ```{r}
 # Create a simple function to generate an interactive heatmap with numbers
@@ -49,108 +80,37 @@ create_correlation_heatmap <- function(correlation_matrix) {
 create_correlation_heatmap(correlation_matrix)
 ```
 
+The function takes a correlation matrix as input and:
+1. Maps variables to the x and y axes.
+2. Uses a diverging color scale (`RdBu`) to highlight both positive (red) and negative (blue) correlations.
+3. Displays rounded correlation values on the heatmap.
+4. Creates an interactive visualization where users can hover over cells to view details.
+
+# Step 5: Modify the Dataset and Observe Changes
+
+To analyze how correlations change with modified input data, we create a filtered version of the dataset that includes only diamonds with `carat` values less than 2. This focuses on a subset of diamonds and recalculates the correlation matrix.
 
 ```{r}
-# Example: Heatmap of average diamond prices by cut and clarity
-library(dplyr)
-time_data <- diamonds %>%
-  group_by(cut, clarity) %>%
-  summarise(avg_price = mean(price), .groups = "drop")
+# Filter the dataset to include only diamonds with carat < 2
+diamonds_filtered <- diamonds_numeric %>% filter(carat < 2)
 
-plot_ly(
-  data = time_data,
-  x = ~clarity,
-  y = ~cut,
-  z = ~avg_price,
-  type = "heatmap",
-  colorscale = "YlGnBu"
-) %>%
-  layout(
-    title = "Average Price by Diamond Quality and Clarity",
-    xaxis = list(title = "Clarity"),
-    yaxis = list(title = "Cut")
-  )
+# Compute the correlation matrix for the filtered dataset
+correlation_matrix_filtered <- cor(diamonds_filtered, use = "complete.obs")
+
+# Generate a heatmap for the filtered dataset
+create_correlation_heatmap(correlation_matrix_filtered)
 ```
 
-```{r}
-# Example using the built-in volcano dataset
-plot_ly(
-  z = ~volcano,
-  type = "heatmap",
-  colorscale = "Viridis"
-) %>%
-  layout(
-    title = "Geospatial Heatmap (Volcano Data)"
-  )
-```
+Here:
+1. The `filter()` function removes rows where `carat` is 2 or more.
+2. A new correlation matrix is calculated using the filtered data.
+3. A heatmap is generated for the modified dataset, allowing for comparison with the original heatmap.
 
-```{r}
-# Example: 2D density heatmap of carat and price
-plot_ly(
-  data = diamonds,
-  x = ~carat,
-  y = ~price,
-  type = "histogram2d",
-  colorscale = "Cividis"
-) %>%
-  layout(
-    title = "Density Heatmap of Carat vs. Price",
-    xaxis = list(title = "Carat"),
-    yaxis = list(title = "Price")
-  )
-```
+# Observations
 
+1. Correlations can shift when the input data is modified. For example, restricting the range of `carat` may reduce the variability in related variables, potentially weakening their correlations.
+2. By comparing the heatmaps, you can visually identify which relationships remain strong and which weaken in the filtered dataset.
 
-```{r}
-# Aggregate data by carat
-avg_price_by_carat <- diamonds %>%
-  group_by(carat = round(carat, 1)) %>%
-  summarise(avg_price = mean(price), .groups = "drop")
+# Conclusion
 
-# Create line plot
-plot_ly(
-  data = avg_price_by_carat,
-  x = ~carat,
-  y = ~avg_price,
-  type = "scatter",
-  mode = "lines",
-  line = list(color = "green")
-) %>%
-  layout(
-    title = "Line Plot: Average Price by Carat",
-    xaxis = list(title = "Carat"),
-    yaxis = list(title = "Average Price")
-  )
-```
-
-```{r}
-plot_ly(
-  data = avg_price_by_carat,
-  x = ~carat,
-  y = ~avg_price,
-  type = "scatter",
-  mode = "markers+lines",
-  marker = list(color = "orange", size = 8),
-  line = list(color = "blue")
-) %>%
-  layout(
-    title = "Scatter and Line Plot: Average Price by Carat",
-    xaxis = list(title = "Carat"),
-    yaxis = list(title = "Average Price")
-  )
-```
-
-```{r}
-avg_price_by_cut <- diamonds %>%
-  group_by(cut, carat = round(carat, 1)) %>%
-  summarise(avg_price = mean(price), .groups = "drop")
-
-plot_ly(data = avg_price_by_cut, x = ~carat, y = ~avg_price, color = ~cut, type = "scatter", mode = "lines") %>%
-  layout(
-    title = "Line Plot: Average Price by Carat for Diamond Quality",
-    xaxis = list(title = "Carat"),
-    yaxis = list(title = "Average Price")
-  )
-```
-
-
+Interactive heatmaps are a powerful tool for exploring and visualizing correlations between numerical variables. They allow users to engage with the data dynamically and observe how changes in input data affect relationships. This approach makes complex data more accessible and interpretable, particularly for exploratory data analysis.
