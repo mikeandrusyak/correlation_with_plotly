@@ -1,7 +1,7 @@
 ---
-title: "Analyzing the Impact of Color Scales on Correlation Heatmaps"
 output: html_document
 ---
+# Analyzing the Impact of Color Scales on Correlation Heatmaps
 
 # Introduction
 
@@ -20,12 +20,10 @@ This document analyzes how different color scales (sequential and diverging) aff
 To begin, we load the necessary libraries and prepare the dataset for analysis. The `diamonds` dataset from the `ggplot2` package contains a mix of numerical and categorical columns. Since correlation requires numerical data, we filter the dataset to include only the numerical columns. This ensures that we can compute meaningful pairwise correlations.
 
 ```{r, message=FALSE, warning=FALSE}
-# Load necessary libraries
 library(ggplot2)   # For the diamonds dataset
 library(plotly)    # For creating interactive heatmaps
 library(dplyr)     # For data manipulation
 
-# Load the diamonds dataset
 data(diamonds)
 
 # Select only numerical columns
