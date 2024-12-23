@@ -12,9 +12,8 @@ We aim to create an interactive correlation plot using `plotly` that allows filt
 
 ---
 
-## Loading Libraries and Data
+## Step 1: Loading Libraries and Data
 
-**What the code does:**  
 Loads the required libraries and the Iris dataset for analysis.
 ```{r, message=FALSE, warning=FALSE}
 library(plotly)
@@ -24,28 +23,27 @@ data(iris)
 head(iris)
 ```
 
-## Defining Regression and Correlation Line Function
+## Step 2: Defining Regression and Correlation Line Function
 
-**What the code does:**  
 Creates a custom function to calculate regression lines and correlation coefficients for subsets of data (based on species
 
 ```{r}
 regression_lines <- function(data, species) {
   data_sp <- data %>% filter(Species == species)
-  model <- lm(Petal.Length ~ Sepal.Length, data = data_sp)
+  model <- lm(Petal.Length ~ Sepal.Length, data = data_sp) 
   
   x_range <- seq(min(data_sp$Sepal.Length), max(data_sp$Sepal.Length), length.out = 100)
   y_range <- predict(model, newdata = data.frame(Sepal.Length = x_range))
   
-  cor_value <- round(cor(data_sp$Sepal.Length, data_sp$Petal.Length), 2)
+  cor_value <- round(cor(data_sp$Sepal.Length,
+                         data_sp$Petal.Length), 2) # Calculate correlation coefficient
   
   data.frame(Sepal.Length = x_range, Petal.Length = y_range, Species = species, Correlation = cor_value)
 }
 ```
 
-## Generating Regression Lines and Correlation Coefficients
+## Step 3: Generating Regression Lines and Correlation Coefficients
 
-**What the code does:**  
 Generates regression lines and calculates correlation coefficients for each species (Setosa, Versicolor, Virginica).
 
 ```{r}
@@ -54,99 +52,96 @@ lines_versicolor <- regression_lines(iris, "versicolor")
 lines_virginica <- regression_lines(iris, "virginica")
 ```
 
-## Creating the Interactive Plot with Data Points
+## Step 4: Creating the Interactive Plot with Data Points
 
-**What the code does:**  
 Creates a scatter plot of Sepal.Length vs Petal.Length and includes a filter for species.
 
 ```{r}
 fig <- plot_ly(
-  data = iris,
-  x = ~Sepal.Length,
-  y = ~Petal.Length,
-  color = ~Species,
-  colors = c('blue', 'orange', 'green'),
-  type = 'scatter',
-  mode = 'markers',
+  data = iris,                                              # Data source
+  x = ~Sepal.Length,                                       # X-axis: Sepal Length
+  y = ~Petal.Length,                                       # Y-axis: Petal Length
+  color = ~Species,                                        # Color by Species
+  colors = c('blue', 'orange', 'green'),                   # Define colors for each species
+  type = 'scatter',                                        # Specify the plot type as scatter
+  mode = 'markers',                                        # Display markers
   transforms = list(
     list(
-      type = 'filter',
-      target = ~Species,
-      operation = '=',
-      value = "setosa"
+      type = 'filter',                                      # Add a filter transform
+      target = ~Species,                                    # Target the Species variable
+      operation = '=',                                      # Operation type: equals
+      value = "setosa"                                      # Initial filter value: setosa
     )
   )
 )
 ```
 
-## Adding Regression Lines to the Plot
+## Step 5: Adding Regression Lines to the Plot
 
-**What the code does:**  
 Adds dynamic regression lines for each species to the scatter plot.
 ```{r}
 fig <- fig %>%
   add_lines(
-    data = lines_setosa,
-    x = ~Sepal.Length,
-    y = ~Petal.Length,
-    line = list(color = 'blue', width = 1),
-    name = paste("Setosa (r =", lines_setosa$Correlation[1], ")")
+    data = lines_setosa,                                      # Data for Setosa regression line
+    x = ~Sepal.Length,                                       # X values for the line
+    y = ~Petal.Length,                                       # Y values for the line
+    line = list(color = 'blue', width = 1),                  # Line style
+    name = paste("Setosa (r =", lines_setosa$Correlation[1], ")")  # Legend name with correlation
   ) %>%
   add_lines(
-    data = lines_versicolor,
-    x = ~Sepal.Length,
-    y = ~Petal.Length,
-    line = list(color = 'orange', width = 1),
-    name = paste("Versicolor (r =", lines_versicolor$Correlation[1], ")")
+    data = lines_versicolor,                                  # Data for Versicolor regression line
+    x = ~Sepal.Length,                                       # X values for the line
+    y = ~Petal.Length,                                       # Y values for the line
+    line = list(color = 'orange', width = 1),                # Line style
+    name = paste("Versicolor (r =", lines_versicolor$Correlation[1], ")")  # Legend name with correlation
   ) %>%
   add_lines(
-    data = lines_virginica,
-    x = ~Sepal.Length,
-    y = ~Petal.Length,
-    line = list(color = 'green', width = 1),
-    name = paste("Virginica (r =", lines_virginica$Correlation[1], ")")
+    data = lines_virginica,                                   # Data for Virginica regression line
+    x = ~Sepal.Length,                                       # X values for the line
+    y = ~Petal.Length,                                       # Y values for the line
+    line = list(color = 'green', width = 1),                 # Line style
+    name = paste("Virginica (r =", lines_virginica$Correlation[1], ")")  # Legend name with correlation
   )
 ```
 
-## Adding Filtering Capabilities to the Plot
+## Step 6: Adding Filtering Capabilities to the Plot
 
-**What the code does:**  
 Includes a dropdown menu to filter the plot by species or show all data points together.
 
 ```{r}
 fig <- fig %>%
   layout(
-    title = "Dynamic Lines with Correlation Coefficients",
-    xaxis = list(title = "Sepal Length (cm)"),
-    yaxis = list(title = "Petal Length (cm)"),
+    title = "Dynamic Lines with Correlation Coefficients",          # Plot title
+    xaxis = list(title = "Sepal Length (cm)"),                      # X-axis title
+    yaxis = list(title = "Petal Length (cm)"),                      # Y-axis title
     updatemenus = list(
       list(
         buttons = list(
           list(
-            method = "restyle",
-            args = list("transforms[0].value", "setosa"),
-            label = "Iris-setosa"
+            method = "restyle",                                     # Method to update the plot
+            args = list("transforms[0].value", "setosa"),          # Filter for Setosa
+            label = "Iris-setosa"                                   # Button label
           ),
           list(
-            method = "restyle",
-            args = list("transforms[0].value", "versicolor"),
-            label = "Iris-versicolor"
+            method = "restyle",                                     # Method to update the plot
+            args = list("transforms[0].value", "versicolor"),      # Filter for Versicolor
+            label = "Iris-versicolor"                               # Button label
           ),
           list(
-            method = "restyle",
-            args = list("transforms[0].value", "virginica"),
-            label = "Iris-virginica"
+            method = "restyle",                                     # Method to update the plot
+            args = list("transforms[0].value", "virginica"),       # Filter for Virginica
+            label = "Iris-virginica"                                # Button label
           ),
           list(
-            method = "restyle",
-            args = list("transforms[0].value", unique(iris$Species)),
-            label = "All"
+            method = "restyle",                                     # Method to update the plot
+            args = list("transforms[0].value", unique(iris$Species)),  # Show all species
+            label = "All"                                           # Button label
           )
         ),
-        direction = "down",
-        x = 0.1,
-        y = 1.15,
-        showactive = TRUE
+        direction = "down",                                           # Dropdown direction
+        x = 0.1,                                                      # X position of the dropdown
+        y = 1.15,                                                     # Y position of the dropdown
+        showactive = TRUE                                             # Show active button
       )
     )
   )
