@@ -1,6 +1,14 @@
 ---
-title: "main"
-format: html
+title: "Correlation visualization capabilities using **plotly** in R"
+author: 
+  - name: "Andrusiak Mykhailo"
+  - name: "Harmanjoт Singh"
+date: "05 January 2025"
+format:
+  html:
+    navigation: true
+toc: true
+toc_depth: 2
 ---
 
 # Creating an Interactive Correlation Plot with Filtering Capabilities
@@ -12,7 +20,7 @@ We aim to create an interactive correlation plot using `plotly` that allows filt
 
 ---
 
-## Step 1: Loading Libraries and Data
+### Step 1: Loading Libraries and Data
 
 Loads the required libraries and the Iris dataset for analysis.
 ```{r, message=FALSE, warning=FALSE}
@@ -23,7 +31,7 @@ data(iris)
 head(iris)
 ```
 
-## Step 2: Defining Regression and Correlation Line Function
+### Step 2: Defining Regression and Correlation Line Function
 
 Creates a custom function to calculate regression lines and correlation coefficients for subsets of data (based on species
 
@@ -42,7 +50,7 @@ regression_lines <- function(data, species) {
 }
 ```
 
-## Step 3: Generating Regression Lines and Correlation Coefficients
+### Step 3: Generating Regression Lines and Correlation Coefficients
 
 Generates regression lines and calculates correlation coefficients for each species (Setosa, Versicolor, Virginica).
 
@@ -52,7 +60,7 @@ lines_versicolor <- regression_lines(iris, "versicolor")
 lines_virginica <- regression_lines(iris, "virginica")
 ```
 
-## Step 4: Creating the Interactive Plot with Data Points
+### Step 4: Creating the Interactive Plot with Data Points
 
 Creates a scatter plot of Sepal.Length vs Petal.Length and includes a filter for species.
 
@@ -76,7 +84,7 @@ fig <- plot_ly(
 )
 ```
 
-## Step 5: Adding Regression Lines to the Plot
+### Step 5: Adding Regression Lines to the Plot
 
 Adds dynamic regression lines for each species to the scatter plot.
 ```{r}
@@ -104,7 +112,7 @@ fig <- fig %>%
   )
 ```
 
-## Step 6: Adding Filtering Capabilities to the Plot
+### Step 6: Adding Filtering Capabilities to the Plot
 
 Includes a dropdown menu to filter the plot by species or show all data points together.
 
@@ -149,7 +157,7 @@ fig <- fig %>%
 fig
 ```
 
-## About the Plot
+### About the Plot
 
 **What the plot shows:**  
 This interactive plot visualizes the relationship between `Sepal.Length` and `Petal.Length` for the Iris dataset, with regression lines and correlation coefficients for each species. Key features include:  
@@ -199,15 +207,13 @@ We will use **Heatmaps** for a quick overview of correlations and **Scatter Matr
 
 ---
 
-## Step 1: Importing Libraries and Preparing the Data
+### Step 1: Importing Libraries and Preparing the Data
 
-•	Imports the necessary libraries for working with data and visualizations.
+•	Imports additional library for loading data
 ```{r,message=FALSE, warning=FALSE}
-library(plotly)
 library(ggplot2)  # For diamonds
-library(dplyr)
 ```
-## Step 2: Small Dataset: Correlation Heatmap
+### Step 2: Small Dataset: Correlation Heatmap
 
 •	Loads the mtcars dataset.  
 •	Calculates the correlation matrix for all numeric variables.
@@ -249,7 +255,7 @@ The Heatmap displays the correlations between numeric variables in the mtcars da
 •	Purple color: strong negative correlations.  
 This allows for a quick identification of the strongest and weakest relationships.  
 
-## Step 3: Small Dataset: Scatter Matrix  
+### Step 3: Small Dataset: Scatter Matrix  
 Generates a Scatter Matrix for key variables mpg, hp, wt, and qsec in the mtcars dataset.
 ```{r}
 fig2 <- plot_ly(
@@ -271,11 +277,11 @@ fig2
 **About the plot:**  
 The Scatter Matrix visualizes pairwise relationships between key variables in the mtcars dataset, along with their distributions. For example, mpg shows a strong negative correlation with hp and wt.  
 
-## Step 4: Large Dataset: Correlation Heatmap  
+### Step 4: Large Dataset: Correlation Heatmap  
 •	Samples 1,000 rows from the diamonds dataset.  
 •	Computes the correlation matrix for numeric variables.  
 ```{r}
-data("diamonds")
+data(diamonds)
 large_data <- diamonds %>% sample_n(1000)  
 
 large_corr <- large_data %>% 
@@ -312,7 +318,7 @@ fig3
 **About the plot:**  
 The Heatmap shows correlations between numeric variables in the diamonds subset. Strong positive correlations are visible between carat and size-related variables (x, y, z), highlighted in yellow.  
 
-## Step 5: Large Dataset: Scatter Matrix  
+### Step 5: Large Dataset: Scatter Matrix  
 •	Generates a Scatter Matrix for all numeric variables in the diamonds dataset sample.
 ```{r}
 numeric_data <- large_data[sapply(large_data, is.numeric)]
@@ -346,31 +352,12 @@ The Scatter Matrix for the diamonds dataset sample shows pairwise relationships 
     
 # Interactive Heatmaps for Correlation Visualization
 
+## Research Question
 This analysis demonstrates how to create an interactive heatmap of correlations to visualize relationships between numerical variables. The goal is to explore correlation coefficients and observe how they change when the input data is modified. We will use the `diamonds` dataset from the `ggplot2` package and visualize relationships using `plotly` for interactivity.
 
-# Step 1: Load Required Libraries and Dataset
+### Step 1: Select Numerical Variables
 
-In this step, we load the necessary libraries and the `diamonds` dataset. We then filter the dataset to include only numerical variables, as correlation calculations require numerical data.
-
-```{r, message=FALSE, warning=FALSE}
-# Load the ggplot2 package to access the diamonds dataset
-library(ggplot2)
-
-# Load the plotly package for interactive visualizations
-library(plotly)
-
-# Load the diamonds dataset
-data(diamonds)
-
-# View the first few rows of the dataset
-head(diamonds)
-```
-
-The `diamonds` dataset contains attributes like `carat`, `price`, and `depth`, which are suitable for correlation analysis. The `head()` function provides a quick preview of the dataset.
-
-# Step 2: Select Numerical Variables
-
-We identify and select only the numerical variables from the dataset to compute correlations. This ensures the analysis focuses solely on numerical relationships.
+Since the necessary libraries have already been loaded we identify and select only the numerical variables from the dataset to compute correlations. This ensures the analysis focuses solely on numerical relationships.
 
 ```{r}
 # Identify numerical columns in the dataset
@@ -382,7 +369,7 @@ diamonds_numeric <- diamonds[, numeric_columns]
 
 The `sapply()` function checks each column to determine if it is numeric. We use this information to subset the dataset and create a new dataframe `diamonds_numeric` containing only numerical variables.
 
-# Step 3: Calculate the Correlation Matrix
+### Step 2: Calculate the Correlation Matrix
 
 Next, we calculate the correlation matrix for the selected numerical variables. The correlation matrix quantifies the pairwise relationships between variables, ranging from -1 (perfect negative correlation) to +1 (perfect positive correlation).
 
@@ -393,7 +380,7 @@ correlation_matrix <- cor(diamonds_numeric, use = "complete.obs")
 
 The `cor()` function computes pairwise correlations. Setting `use = "complete.obs"` ensures rows with missing values are excluded.
 
-# Step 4: Create an Interactive Correlation Heatmap
+### Step 3: Create an Interactive Correlation Heatmap
 
 To visualize the correlation matrix interactively, we define a function that generates a heatmap using `plotly`. This heatmap allows users to explore correlations interactively by hovering over the cells.
 
@@ -431,7 +418,7 @@ The function takes a correlation matrix as input and:
 
 4. Creates an interactive visualization where users can hover over cells to view details.
 
-# Step 5: Modify the Dataset and Observe Changes
+### Step 4: Modify the Dataset and Observe Changes
 
 To analyze how correlations change with modified input data, we create a filtered version of the dataset that includes only diamonds with `carat` values less than 2. This focuses on a subset of diamonds and recalculates the correlation matrix.
 
@@ -454,19 +441,19 @@ Here:
 
 3. A heatmap is generated for the modified dataset, allowing for comparison with the original heatmap.
 
-# Observations
+## Observations
 
 1. Correlations can shift when the input data is modified. For example, restricting the range of `carat` may reduce the variability in related variables, potentially weakening their correlations.
 
 2. By comparing the heatmaps, you can visually identify which relationships remain strong and which weaken in the filtered dataset.
 
-# Conclusion
+## Conclusion
 
 Interactive heatmaps are a powerful tool for exploring and visualizing correlations between numerical variables. They allow users to engage with the data dynamically and observe how changes in input data affect relationships. This approach makes complex data more accessible and interpretable, particularly for exploratory data analysis.
 
 # Analyzing the Impact of Color Scales on Correlation Heatmaps
 
-# Introduction
+## Research Question
 
 This document analyzes how different color scales (sequential and diverging) affect the perception of correlation strength in heatmaps. Using the `diamonds` dataset from the `ggplot2` package, we will:
 
@@ -478,47 +465,9 @@ This document analyzes how different color scales (sequential and diverging) aff
 
 ---
 
-# Step 1: Load Required Libraries and Data
+### Step 1: Create a Heatmap with a Diverging Color Scale
 
-To begin, we load the necessary libraries and prepare the dataset for analysis. The `diamonds` dataset from the `ggplot2` package contains a mix of numerical and categorical columns. Since correlation requires numerical data, we filter the dataset to include only the numerical columns. This ensures that we can compute meaningful pairwise correlations.
-
-```{r, message=FALSE, warning=FALSE}
-library(ggplot2)   # For the diamonds dataset
-library(plotly)    # For creating interactive heatmaps
-library(dplyr)     # For data manipulation
-
-data(diamonds)
-
-# Select only numerical columns
-diamonds_numeric <- diamonds[, sapply(diamonds, is.numeric)]
-
-# Display the first few rows of the numerical data
-head(diamonds_numeric)  # Preview the dataset
-```
-
-In this code block, we loaded three libraries: `ggplot2` for accessing the diamonds dataset, `plotly` for generating interactive heatmaps, and `dplyr` for manipulating data easily. The diamonds dataset is filtered to include only numeric columns using `sapply(diamonds, is.numeric)`, allowing us to calculate correlations in the next step.
-
----
-
-# Step 2: Calculate the Correlation Matrix
-
-In this step, we calculate the correlation matrix for the numerical columns selected from the diamonds dataset. The correlation matrix provides pairwise correlation coefficients, showing the strength and direction of the relationships between variables.
-
-```{r}
-# Calculate the correlation matrix for numerical columns
-correlation_matrix <- cor(diamonds_numeric, use = "complete.obs")
-
-# Print the correlation matrix
-print(correlation_matrix)  # Display the correlation values
-```
-
-The `cor` function computes the correlations between all pairs of numerical variables in the dataset. The `use = "complete.obs"` argument ensures that any rows with missing values are excluded from the computation. This step results in a matrix where rows and columns correspond to the variables, and the values represent the correlation coefficients between them.
-
----
-
-# Step 3: Create a Heatmap with a Diverging Color Scale
-
-Next, we visualize the correlation matrix using a diverging color scale (`RdBu`). Diverging color scales are particularly useful for highlighting the direction of correlations. Strong positive correlations appear in one color (e.g., red), strong negative correlations appear in another (e.g., blue), and neutral correlations are displayed as white.
+Since the necessary libraries have already been loaded, the diamonds dataset has been filtered and Correlation Matrix has been calculated. Next, we visualize the correlation matrix using a diverging color scale (`RdBu`). Diverging color scales are particularly useful for highlighting the direction of correlations. Strong positive correlations appear in one color (e.g., red), strong negative correlations appear in another (e.g., blue), and neutral correlations are displayed as white.
 
 ```{r}
 # Create a heatmap with a diverging color scale (RdBu)
@@ -542,7 +491,7 @@ This block creates an interactive heatmap using the `plot_ly` function. The `col
 
 ---
 
-# Step 4: Create a Heatmap with a Sequential Color Scale
+### Step 2: Create a Heatmap with a Sequential Color Scale
 
 We now create another heatmap, this time using a sequential color scale (`Viridis`). Sequential color scales emphasize the strength of correlations without differentiating between positive and negative values.
 
@@ -568,7 +517,7 @@ This code uses the same approach as before but applies a sequential color scale 
 
 ---
 
-# Step 5: Identify Top Positive and Negative Correlations
+### Step 3: Identify Top Positive and Negative Correlations
 
 To complement the visual analysis, we identify the strongest positive and negative correlations in the dataset. This involves reshaping the correlation matrix into a long format and sorting the values to find the top correlations.
 
@@ -596,7 +545,7 @@ In this step, we convert the correlation matrix into a long-format data frame us
 
 ---
 
-# Analysis and Conclusion
+## Analysis and Conclusion
 
 This analysis highlights the impact of different color scales on the interpretation of correlation heatmaps. The diverging color scale (`RdBu`) effectively distinguishes between positive and negative correlations, making it ideal for identifying the direction of relationships. However, it may be visually overwhelming due to its strong contrasts. In contrast, the sequential color scale (`Viridis`) provides a smoother gradient that emphasizes the strength of correlations but does not differentiate their direction. 
 
