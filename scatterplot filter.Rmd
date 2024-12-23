@@ -1,0 +1,190 @@
+---
+title: "Interactive Correlation Plot with Filtering"
+output: html_document
+---
+
+# Creating an Interactive Correlation Plot with Filtering Capabilities
+
+## Research Question
+
+**What are we analyzing?**  
+We aim to create an interactive correlation plot using `plotly` that allows filtering to observe how correlations change across different groups (e.g., species in the Iris dataset).
+
+---
+
+## Step 1: Loading Libraries and Data
+
+Loads the required libraries and the Iris dataset for analysis.
+```{r, message=FALSE, warning=FALSE}
+library(plotly)
+library(dplyr)
+
+data(iris)
+head(iris)
+```
+
+## Step 2: Defining Regression and Correlation Line Function
+
+Creates a custom function to calculate regression lines and correlation coefficients for subsets of data (based on species
+
+```{r}
+regression_lines <- function(data, species) {
+  data_sp <- data %>% filter(Species == species)
+  model <- lm(Petal.Length ~ Sepal.Length, data = data_sp) 
+  
+  x_range <- seq(min(data_sp$Sepal.Length), max(data_sp$Sepal.Length), length.out = 100)
+  y_range <- predict(model, newdata = data.frame(Sepal.Length = x_range))
+  
+  cor_value <- round(cor(data_sp$Sepal.Length,
+                         data_sp$Petal.Length), 2) # Calculate correlation coefficient
+  
+  data.frame(Sepal.Length = x_range, Petal.Length = y_range, Species = species, Correlation = cor_value)
+}
+```
+
+## Step 3: Generating Regression Lines and Correlation Coefficients
+
+Generates regression lines and calculates correlation coefficients for each species (Setosa, Versicolor, Virginica).
+
+```{r}
+lines_setosa <- regression_lines(iris, "setosa")
+lines_versicolor <- regression_lines(iris, "versicolor")
+lines_virginica <- regression_lines(iris, "virginica")
+```
+
+## Step 4: Creating the Interactive Plot with Data Points
+
+Creates a scatter plot of Sepal.Length vs Petal.Length and includes a filter for species.
+
+```{r}
+fig <- plot_ly(
+  data = iris,                                              # Data source
+  x = ~Sepal.Length,                                       # X-axis: Sepal Length
+  y = ~Petal.Length,                                       # Y-axis: Petal Length
+  color = ~Species,                                        # Color by Species
+  colors = c('blue', 'orange', 'green'),                   # Define colors for each species
+  type = 'scatter',                                        # Specify the plot type as scatter
+  mode = 'markers',                                        # Display markers
+  transforms = list(
+    list(
+      type = 'filter',                                      # Add a filter transform
+      target = ~Species,                                    # Target the Species variable
+      operation = '=',                                      # Operation type: equals
+      value = "setosa"                                      # Initial filter value: setosa
+    )
+  )
+)
+```
+
+## Step 5: Adding Regression Lines to the Plot
+
+Adds dynamic regression lines for each species to the scatter plot.
+```{r}
+fig <- fig %>%
+  add_lines(
+    data = lines_setosa,                                      # Data for Setosa regression line
+    x = ~Sepal.Length,                                       # X values for the line
+    y = ~Petal.Length,                                       # Y values for the line
+    line = list(color = 'blue', width = 1),                  # Line style
+    name = paste("Setosa (r =", lines_setosa$Correlation[1], ")")  # Legend name with correlation
+  ) %>%
+  add_lines(
+    data = lines_versicolor,                                  # Data for Versicolor regression line
+    x = ~Sepal.Length,                                       # X values for the line
+    y = ~Petal.Length,                                       # Y values for the line
+    line = list(color = 'orange', width = 1),                # Line style
+    name = paste("Versicolor (r =", lines_versicolor$Correlation[1], ")")  # Legend name with correlation
+  ) %>%
+  add_lines(
+    data = lines_virginica,                                   # Data for Virginica regression line
+    x = ~Sepal.Length,                                       # X values for the line
+    y = ~Petal.Length,                                       # Y values for the line
+    line = list(color = 'green', width = 1),                 # Line style
+    name = paste("Virginica (r =", lines_virginica$Correlation[1], ")")  # Legend name with correlation
+  )
+```
+
+## Step 6: Adding Filtering Capabilities to the Plot
+
+Includes a dropdown menu to filter the plot by species or show all data points together.
+
+```{r}
+fig <- fig %>%
+  layout(
+    title = "Dynamic Lines with Correlation Coefficients",          # Plot title
+    xaxis = list(title = "Sepal Length (cm)"),                      # X-axis title
+    yaxis = list(title = "Petal Length (cm)"),                      # Y-axis title
+    updatemenus = list(
+      list(
+        buttons = list(
+          list(
+            method = "restyle",                                     # Method to update the plot
+            args = list("transforms[0].value", "setosa"),          # Filter for Setosa
+            label = "Iris-setosa"                                   # Button label
+          ),
+          list(
+            method = "restyle",                                     # Method to update the plot
+            args = list("transforms[0].value", "versicolor"),      # Filter for Versicolor
+            label = "Iris-versicolor"                               # Button label
+          ),
+          list(
+            method = "restyle",                                     # Method to update the plot
+            args = list("transforms[0].value", "virginica"),       # Filter for Virginica
+            label = "Iris-virginica"                                # Button label
+          ),
+          list(
+            method = "restyle",                                     # Method to update the plot
+            args = list("transforms[0].value", unique(iris$Species)),  # Show all species
+            label = "All"                                           # Button label
+          )
+        ),
+        direction = "down",                                           # Dropdown direction
+        x = 0.1,                                                      # X position of the dropdown
+        y = 1.15,                                                     # Y position of the dropdown
+        showactive = TRUE                                             # Show active button
+      )
+    )
+  )
+
+fig
+```
+
+## About the Plot
+
+**What the plot shows:**  
+This interactive plot visualizes the relationship between `Sepal.Length` and `Petal.Length` for the Iris dataset, with regression lines and correlation coefficients for each species. Key features include:  
+
+1. **Filtering:**  
+   - Use the dropdown menu to filter the data by species (`Setosa`, `Versicolor`, or `Virginica`) or view all species together.
+   
+2. **Dynamic Regression Lines:**  
+   - Each species has its regression line displayed with its correlation coefficient (`r`). These lines dynamically adjust based on the selected filter.
+
+3. **Interactive Legend:**  
+   - You can click on the legend items to toggle the visibility of specific data points or regression lines, allowing for customized views.
+
+4. **Scalability:**  
+   - The plot supports zooming and panning, making it easy to focus on specific data points or regions of interest.  
+   - Use the built-in toolbar to reset the view, save the graph, or activate zoom modes.
+
+This plot is an excellent tool for exploring both individual and combined group correlations, enabling deeper insights into the data structure.
+
+---
+
+## Conclusion
+
+**Key Insights:**
+
+1. **Interactive Filtering and Group Analysis:**  
+   - The dropdown menu allows users to isolate specific species or compare all groups together, providing flexibility in exploring correlations.
+
+2. **Dynamic Regression Lines and Correlations:**  
+   - The regression lines, annotated with `r` values, provide a clear understanding of the strength and direction of linear relationships for each group.  
+   - This makes it easy to compare correlations across different subsets.
+
+3. **Legend Interactions and Zooming:**  
+   - The interactive legend enables users to toggle data visibility, simplifying the exploration of specific subsets or regression lines.  
+   - Zooming and panning features improve usability, especially when analyzing dense or overlapping data points.
+
+**Recommendation:**  
+This approach is ideal for datasets with well-defined groups (e.g., categories or classes). Use dynamic filtering to explore correlations efficiently across subsets. The interactive legend and zoom features further enhance the user experience, making it suitable for exploratory data analysis and presentations to diverse audiences.
