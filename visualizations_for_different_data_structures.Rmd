@@ -12,9 +12,7 @@ We will use **Heatmaps** for a quick overview of correlations and **Scatter Matr
 
 ---
 
-## Importing Libraries and Preparing the Data
-
-**What the code does:**
+## Step 1: Importing Libraries and Preparing the Data
 
 •	Imports the necessary libraries for working with data and visualizations.
 ```{r,message=FALSE, warning=FALSE}
@@ -22,12 +20,9 @@ library(plotly)
 library(ggplot2)  # For diamonds
 library(dplyr)
 ```
-## Small Dataset: Correlation Heatmap
+## Step 2: Small Dataset: Correlation Heatmap
 
-**What the code does:** 
-
-•	Loads the mtcars dataset.
-
+•	Loads the mtcars dataset.  
 •	Calculates the correlation matrix for all numeric variables.
 ```{r}
 data("mtcars")
@@ -35,71 +30,63 @@ small_data <- mtcars
 
 small_corr <- round(cor(small_data), 2)
 ```
-**What the code does:** 
-
 •	Creates a Heatmap to visualize the correlations.
 ```{r}
 fig1 <- plot_ly(
-  data = small_data,
-  x = colnames(small_corr),
-  y = colnames(small_corr),
-  z = small_corr,
-  type = "heatmap",
-  colorscale = "Viridis",
-  text = round(small_corr, 2),
-  hoverinfo = "x+y+text"
+  data = small_data,                              # Data source
+  x = colnames(small_corr),                       # X-axis: variable names
+  y = colnames(small_corr),                       # Y-axis: variable names
+  z = small_corr,                                 # Z-axis: correlation values
+  type = "heatmap",                               # Specify the type as heatmap
+  colorscale = "Viridis",                         # Color scale for the heatmap
+  text = round(small_corr, 2),                    # Text to display on hover
+  hoverinfo = "x+y+text"                           # Information to display on hover
 ) %>%
-  layout(title = "Heatmap of Correlation (Small Dataset: mtcars)",
+  layout(
+    title = "Heatmap of Correlation (Small Dataset: mtcars)",  # Title of the plot
+    xaxis = list(title = "Variables"),                         # X-axis title
+    yaxis = list(title = "Variables"),                         # Y-axis title
     annotations = list(
-      x = rep(colnames(small_corr), each = nrow(small_corr)),
-      y = rep(colnames(small_corr), ncol(small_corr)),
-      text = as.character(round(small_corr, 2)),
-      showarrow = FALSE,
-      font = list(size = 12, color = "white")
+      x = rep(colnames(small_corr), each = nrow(small_corr)), # X positions for annotations
+      y = rep(colnames(small_corr), ncol(small_corr)),        # Y positions for annotations
+      text = as.character(round(small_corr, 2)),              # Text for annotations
+      showarrow = FALSE,                                       # Hide arrows in annotations
+      font = list(size = 12, color = "white")                 # Font size and color for annotations
     )
   )
 fig1
 ```
-**About the plot:**
+**About the plot:**  
+The Heatmap displays the correlations between numeric variables in the mtcars dataset.  
+•	Yellow color: strong positive correlations.  
+•	Purple color: strong negative correlations.  
+This allows for a quick identification of the strongest and weakest relationships.  
 
-The Heatmap displays the correlations between numeric variables in the mtcars dataset.
-
-•	Yellow color: strong positive correlations.
-
-•	Purple color: strong negative correlations.
-
-This allows for a quick identification of the strongest and weakest relationships.
-
-## Small Dataset: Scatter Matrix
-
-**What the code does:**
-
+## Step 3: Small Dataset: Scatter Matrix  
 Generates a Scatter Matrix for key variables mpg, hp, wt, and qsec in the mtcars dataset.
 ```{r}
 fig2 <- plot_ly(
-  data = small_data,
-  type = "splom", 
+  data = small_data,                             # Data source
+  type = "splom",                                # Specify the type as scatter plot matrix
   dimensions = list(
-    list(label = "mpg", values = ~mpg),
-    list(label = "hp", values = ~hp),
-    list(label = "wt", values = ~wt),
-    list(label = "qsec", values = ~qsec)
-  )) %>%
-  layout(title = "Scatter Matrix (Small Dataset: mtcars)")
+    list(label = "mpg", values = ~mpg),          # Define the first dimension
+    list(label = "hp", values = ~hp),            # Define the second dimension
+    list(label = "wt", values = ~wt),            # Define the third dimension
+    list(label = "qsec", values = ~qsec)         # Define the fourth dimension
+  )
+) %>%
+  layout(
+    title = "Scatter Matrix (Small Dataset: mtcars)"  # Title of the plot
+  )
 
 fig2
 ```
-**About the plot:**
+**About the plot:**  
+The Scatter Matrix visualizes pairwise relationships between key variables in the mtcars dataset, along with their distributions. For example, mpg shows a strong negative correlation with hp and wt.  
 
-The Scatter Matrix visualizes pairwise relationships between key variables in the mtcars dataset, along with their distributions. For example, mpg shows a strong negative correlation with hp and wt.
-
-## Large Dataset: Correlation Heatmap
-
-**What the code does:**
-
-•	Samples 1,000 rows from the diamonds dataset.
-
-•	Computes the correlation matrix for numeric variables.
+## Step 4: Large Dataset: Correlation Heatmap  
+•	Samples 1,000 rows from the diamonds dataset.  
+•	Computes the correlation matrix for numeric variables.  
 ```{r}
 data("diamonds")
 large_data <- diamonds %>% sample_n(1000)  
@@ -109,74 +96,63 @@ large_corr <- large_data %>%
   cor() %>% 
   round(2)
 ```
-**What the code does:**
-
 •	Creates a Heatmap to visualize the correlations.
 ```{r}
 fig3 <- plot_ly(
-  x = colnames(large_corr),
-  y = colnames(large_corr),
-  z = large_corr,
-  type = "heatmap",
-  colorscale = "Viridis",
-  text = round(large_corr, 2), 
-  hoverinfo = "x+y+text"
+  x = colnames(large_corr),                          # X-axis: variable names
+  y = colnames(large_corr),                          # Y-axis: variable names
+  z = large_corr,                                    # Z-axis: correlation values
+  type = "heatmap",                                  # Specify the type as heatmap
+  colorscale = "Viridis",                            # Color scale for the heatmap
+  text = round(large_corr, 2),                       # Text to display on hover
+  hoverinfo = "x+y+text"                              # Information to display on hover
 ) %>%
   layout(
-    title = "Heatmap of Correlation (Large Dataset: diamonds)",
+    title = "Heatmap of Correlation (Large Dataset: diamonds)",  # Title of the plot
+    xaxis = list(title = "Variables"),                           # X-axis title
+    yaxis = list(title = "Variables"),                           # Y-axis title
     annotations = list(
-      x = rep(colnames(large_corr), each = nrow(large_corr)),
-      y = rep(colnames(large_corr), ncol(large_corr)),
-      text = as.character(round(large_corr, 2)), 
-      showarrow = FALSE,
-      font = list(size = 12, color = "white") 
+      x = rep(colnames(large_corr), each = nrow(large_corr)),    # X positions for annotations
+      y = rep(colnames(large_corr), ncol(large_corr)),           # Y positions for annotations
+      text = as.character(round(large_corr, 2)),                 # Text for annotations
+      showarrow = FALSE,                                         # Hide arrows in annotations
+      font = list(size = 12, color = "white")                   # Font size and color for annotations
     )
   )
 
 fig3
 ```
-**About the plot:**
+**About the plot:**  
+The Heatmap shows correlations between numeric variables in the diamonds subset. Strong positive correlations are visible between carat and size-related variables (x, y, z), highlighted in yellow.  
 
-The Heatmap shows correlations between numeric variables in the diamonds subset. Strong positive correlations are visible between carat and size-related variables (x, y, z), highlighted in yellow.
-
-## Large Dataset: Scatter Matrix
-
-**What the code does:**
-
+## Step 5: Large Dataset: Scatter Matrix  
 •	Generates a Scatter Matrix for all numeric variables in the diamonds dataset sample.
 ```{r}
 numeric_data <- large_data[sapply(large_data, is.numeric)]
 
 fig4 <- plot_ly(
-  data = numeric_data,        
-  type = "splom",   
+  data = numeric_data,                              # Data source
+  type = "splom",                                   # Specify the type as scatter plot matrix
   dimensions = lapply(names(numeric_data), function(col) {
-    list(label = col, values = numeric_data[[col]])
+    list(label = col, values = numeric_data[[col]])  # Define each dimension dynamically
   })
 ) %>%
   layout(
-    title = "Scatter Matrix (Large Dataset: diamonds)",
-    margin = list(b = 50)
+    title = "Scatter Matrix (Large Dataset: diamonds)",  # Title of the plot
+    margin = list(b = 50)                                 # Adjust bottom margin
   )
 
 fig4
 ```
-**About the plot:**
-
+**About the plot:**  
 The Scatter Matrix for the diamonds dataset sample shows pairwise relationships between numeric variables. For instance, carat has a clear positive linear relationship with x, y, and z.
 
 ## Conclusion
 
-**Key Findings:**
-
-**1.	Heatmap:**
-
-•	Effective for quickly assessing correlations in both small and large datasets.
-
-•	Color gradients make it easy to identify the strongest and weakest relationships.
-
-**2.	Scatter Matrix:**
-
-•	More informative for detailed pairwise analysis of variables.
-
-•	Suitable for small datasets or selected subsets of variables in large datasets.
+**Key Findings:**  
+  **1.	Heatmap:**  
+    •	Effective for quickly assessing correlations in both small and large datasets.  
+    •	Color gradients make it easy to identify the strongest and weakest relationships.  
+  **2.	Scatter Matrix:**  
+    •	More informative for detailed pairwise analysis of variables.  
+    •	Suitable for small datasets or selected subsets of variables in large datasets.  
