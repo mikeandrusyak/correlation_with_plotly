@@ -1,0 +1,54 @@
+===================================================================
+Correlation visualization capabilities using **plotly** in R - Instructions for Reproducibility
+===================================================================
+
+Authors: 
+  - Mykhailo Andrusiak (FHNW University)
+  - Harmanjot Singh (FHNW University)
+
+Date: January 5, 2025
+
+-------------------------------------------------------------------
+Contents of the Repository:
+-------------------------------------------------------------------
+
+1. **preparation files/**
+   - `*.Rmd` and `*.html`: Supporting R Markdown files used for preparation and testing.
+   - These files are provided as examples of intermediate steps but are not required for rendering the main report.
+
+2. **renv/**: 
+   - Contains dependency management files created by `{renv}` for ensuring reproducibility.
+
+3. **Report/**
+   - `main.qmd`: Main Quarto file for the final report.
+   - `main.html`: Rendered HTML file of the final report.
+   - `main_files/libs/`: Folder containing libraries required for the HTML report (e.g., JavaScript, CSS).
+
+4. **renv.lock**:
+   - A lock file for managing R package versions and ensuring reproducibility.
+
+-------------------------------------------------------------------
+Steps to Reproduce the Report:
+-------------------------------------------------------------------
+
+1. **Set Up the Environment**
+   - Install R (version >= 4.0.0) and Quarto CLI (https://quarto.org/docs/get-started/).
+   - Open the project directory in RStudio or your terminal.
+   - Use `{renv}` to restore the R environment:
+     ```r
+     renv::restore()
+     ```
+
+2. **Render the Report**
+   - Navigate to the `Report` directory and open the `main.qmd` file.
+   - Render the report to HTML:
+     ```bash
+     quarto render main.qmd --to html
+     ```
+   - If you wish to render the report to PDF:
+     ```bash
+     quarto render main.qmd --to pdf
+     ```
+
+3. **View the Report**
+   - Open the `main.html` file in any browser to view the rendered report.
