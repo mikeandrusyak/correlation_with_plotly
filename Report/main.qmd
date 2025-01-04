@@ -567,13 +567,13 @@ The choice of color scale depends on the goals of the analysis. Use diverging sc
 
 In this work, we explored the use of interactive correlation visualization techniques using **plotly** in R to analyze relationships within datasets of varying sizes and structures. We demonstrated how interactive elements such as filtering, regression lines, and dropdown menus enhance the interpretability and user engagement of correlation plots. 
 
-Our analysis highlighted that:
-- **Heatmaps** are highly effective for quickly identifying correlation patterns, especially in large datasets like `diamonds`.
-- **Scatter matrices** provide detailed pairwise insights for smaller datasets like `mtcars`.
+Our analysis highlighted that:  
+ - **Heatmaps** are highly effective for quickly identifying correlation patterns, especially in large datasets like `diamonds`.  
+ - **Scatter matrices** provide detailed pairwise insights for smaller datasets like `mtcars`.
 
-Additionally, we examined the impact of color scales on correlation heatmaps:
-- **Diverging scales** effectively emphasize both the direction and magnitude of relationships.
-- **Sequential scales** are more suitable for focusing on correlation strength.
+Additionally, we examined the impact of color scales on correlation heatmaps:  
+ - **Diverging scales** effectively emphasize both the direction and magnitude of relationships.  
+ - **Sequential scales** are more suitable for focusing on correlation strength.
 
 By combining these visualization methods, we gained a deeper understanding of dataset relationships, tailored tools to specific analysis needs, and showcased the power of interactive visualizations for both exploratory data analysis and clear communication of findings.
 
