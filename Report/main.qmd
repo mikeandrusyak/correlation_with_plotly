@@ -2,13 +2,35 @@
 title: "Correlation visualization capabilities using **plotly** in R"
 author: 
   - name: "Mykhailo Andrusiak"
-  - name: "Harmanjoт Singh"
+  - name: "Harmanjot Singh"
 date: "05 January 2025"
 format:
   html:
     navigation: true
 toc: true
-toc_depth: 2
+toc_depth: 3
+---
+
+**Description of the Mini-Challenge:**
+
+This document is the result of a mini-challenge we undertook to explore the capabilities of the **Plotly** library for correlation visualization in R. Our goal was to examine, analyze, and present correlations between numerical variables using interactive graphical tools.
+
+**Note:** This document is not a comprehensive study but rather a mini-challenge focused on exploring the specific questions that intrigued the authors. It aims to showcase practical applications of Plotly for correlation visualization in R while addressing the outlined research questions.
+
+**Key Research Questions:**
+
+1. **Creating an Interactive Correlation Plot with Filtering Capabilities**  
+   How can we create an interactive correlation plot that allows data filtering to analyze correlations across groups (e.g., species in the Iris dataset)?
+
+2. **Correlation Visualization in Small and Large Datasets**  
+   Which methods are most effective for visualizing correlations in small datasets (up to 100 observations) versus large datasets (over 100,000 observations)?
+
+3. **Interactive Heatmaps for Correlation Visualization**  
+   How can we create interactive heatmaps to display correlations between numerical variables and analyze changes when the input data is modified?
+
+4. **Analyzing the Impact of Color Scales on Correlation Heatmaps**  
+   How does the choice of color scales (sequential vs. diverging) affect the perception of correlation strength and direction in heatmaps?
+
 ---
 
 # Creating an Interactive Correlation Plot with Filtering Capabilities
@@ -18,14 +40,13 @@ toc_depth: 2
 **What are we analyzing?**  
 We aim to create an interactive correlation plot using `plotly` that allows filtering to observe how correlations change across different groups (e.g., species in the Iris dataset).
 
----
-
 ### Step 1: Loading Libraries and Data
 
 Loads the required libraries and the Iris dataset for analysis.
 ```{r, message=FALSE, warning=FALSE}
 library(plotly)
 library(dplyr)
+library(ggplot2)  # For diamonds
 
 data(iris)
 head(iris)
@@ -177,8 +198,6 @@ This interactive plot visualizes the relationship between `Sepal.Length` and `Pe
 
 This plot is an excellent tool for exploring both individual and combined group correlations, enabling deeper insights into the data structure.
 
----
-
 ## Conclusion
 
 **Key Insights:**
@@ -205,25 +224,18 @@ This approach is ideal for datasets with well-defined groups (e.g., categories o
 We aim to determine which correlation visualization methods are most effective for small and large datasets.  
 We will use **Heatmaps** for a quick overview of correlations and **Scatter Matrix** plots for a detailed examination of relationships between variables.
 
----
 
-### Step 1: Importing Libraries and Preparing the Data
+### Step 1: Small Dataset: Correlation Heatmap
 
-•	Imports additional library for loading data
-```{r,message=FALSE, warning=FALSE}
-library(ggplot2)  # For diamonds
-```
-### Step 2: Small Dataset: Correlation Heatmap
-
-•	Loads the mtcars dataset.  
-•	Calculates the correlation matrix for all numeric variables.
+-	Loads the mtcars dataset.  
+-	Calculates the correlation matrix for all numeric variables.
 ```{r}
 data("mtcars")
 small_data <- mtcars
 
 small_corr <- round(cor(small_data), 2)
 ```
-•	Creates a Heatmap to visualize the correlations.
+-	Creates a Heatmap to visualize the correlations.
 ```{r}
 fig1 <- plot_ly(
   data = small_data,                              # Data source
@@ -251,11 +263,11 @@ fig1
 ```
 **About the plot:**  
 The Heatmap displays the correlations between numeric variables in the mtcars dataset.  
-•	Yellow color: strong positive correlations.  
-•	Purple color: strong negative correlations.  
+- Yellow color: strong positive correlations.  
+- Purple color: strong negative correlations.  
 This allows for a quick identification of the strongest and weakest relationships.  
 
-### Step 3: Small Dataset: Scatter Matrix  
+### Step 2: Small Dataset: Scatter Matrix  
 Generates a Scatter Matrix for key variables mpg, hp, wt, and qsec in the mtcars dataset.
 ```{r}
 fig2 <- plot_ly(
@@ -277,9 +289,9 @@ fig2
 **About the plot:**  
 The Scatter Matrix visualizes pairwise relationships between key variables in the mtcars dataset, along with their distributions. For example, mpg shows a strong negative correlation with hp and wt.  
 
-### Step 4: Large Dataset: Correlation Heatmap  
-•	Samples 1,000 rows from the diamonds dataset.  
-•	Computes the correlation matrix for numeric variables.  
+### Step 3: Large Dataset: Correlation Heatmap  
+- Samples 1,000 rows from the diamonds dataset.  
+-	Computes the correlation matrix for numeric variables.  
 ```{r}
 data(diamonds)
 large_data <- diamonds %>% sample_n(1000)  
@@ -289,7 +301,7 @@ large_corr <- large_data %>%
   cor() %>% 
   round(2)
 ```
-•	Creates a Heatmap to visualize the correlations.
+-	Creates a Heatmap to visualize the correlations.
 ```{r}
 fig3 <- plot_ly(
   x = colnames(large_corr),                          # X-axis: variable names
@@ -318,8 +330,8 @@ fig3
 **About the plot:**  
 The Heatmap shows correlations between numeric variables in the diamonds subset. Strong positive correlations are visible between carat and size-related variables (x, y, z), highlighted in yellow.  
 
-### Step 5: Large Dataset: Scatter Matrix  
-•	Generates a Scatter Matrix for all numeric variables in the diamonds dataset sample.
+### Step 4: Large Dataset: Scatter Matrix  
+-	Generates a Scatter Matrix for all numeric variables in the diamonds dataset sample.
 ```{r}
 numeric_data <- large_data[sapply(large_data, is.numeric)]
 
@@ -344,11 +356,11 @@ The Scatter Matrix for the diamonds dataset sample shows pairwise relationships 
 
 **Key Findings:**  
   **1.	Heatmap:**  
-    •	Effective for quickly assessing correlations in both small and large datasets.  
-    •	Color gradients make it easy to identify the strongest and weakest relationships.  
+    -	Effective for quickly assessing correlations in both small and large datasets.  
+    -	Color gradients make it easy to identify the strongest and weakest relationships.  
   **2.	Scatter Matrix:**  
-    •	More informative for detailed pairwise analysis of variables.  
-    •	Suitable for small datasets or selected subsets of variables in large datasets.  
+    -	More informative for detailed pairwise analysis of variables.  
+    -	Suitable for small datasets or selected subsets of variables in large datasets.  
     
 # Interactive Heatmaps for Correlation Visualization
 
@@ -545,9 +557,42 @@ In this step, we convert the correlation matrix into a long-format data frame us
 
 ---
 
-## Analysis and Conclusion
+## Conclusion
 
 This analysis highlights the impact of different color scales on the interpretation of correlation heatmaps. The diverging color scale (`RdBu`) effectively distinguishes between positive and negative correlations, making it ideal for identifying the direction of relationships. However, it may be visually overwhelming due to its strong contrasts. In contrast, the sequential color scale (`Viridis`) provides a smoother gradient that emphasizes the strength of correlations but does not differentiate their direction. 
 
 The choice of color scale depends on the goals of the analysis. Use diverging scales when the direction of correlations is important and sequential scales when focusing solely on the magnitude of relationships.
 
+# Summary of the work
+
+In this work, we explored the use of interactive correlation visualization techniques using **plotly** in R to analyze relationships within datasets of varying sizes and structures. We demonstrated how interactive elements such as filtering, regression lines, and dropdown menus enhance the interpretability and user engagement of correlation plots. 
+
+Our analysis highlighted that:
+- **Heatmaps** are highly effective for quickly identifying correlation patterns, especially in large datasets like `diamonds`.
+- **Scatter matrices** provide detailed pairwise insights for smaller datasets like `mtcars`.
+
+Additionally, we examined the impact of color scales on correlation heatmaps:
+- **Diverging scales** effectively emphasize both the direction and magnitude of relationships.
+- **Sequential scales** are more suitable for focusing on correlation strength.
+
+By combining these visualization methods, we gained a deeper understanding of dataset relationships, tailored tools to specific analysis needs, and showcased the power of interactive visualizations for both exploratory data analysis and clear communication of findings.
+
+---
+
+**Resources Used in the Mini-Challenge**
+
+In this mini-challenge, we utilized the following resources to explore correlation visualization techniques and document our findings:
+
+1. [**Plotly for R**](https://plotly.com/r/)  
+   - This official documentation served as the primary resource for understanding and implementing the interactive visualization capabilities of the **Plotly** library in R. It provided detailed guides and examples that supported the creation of heatmaps, scatter matrices, and other interactive plots.
+
+2. **YouTube**  
+   - We referred to various YouTube tutorials and explanatory videos to deepen our understanding of correlation analysis and visualization techniques.
+
+3. **ChatGPT**  
+   - ChatGPT acted as our virtual assistant throughout the project. It supported us in:
+     - Reviewing and refining code for better performance and clarity.
+     - Providing explanations of complex concepts and suggesting improvements.
+     - Assisting in the preparation and structuring of the final documentation.
+
+These resources collectively enhanced our ability to explore, implement, and document correlation visualization techniques effectively.
