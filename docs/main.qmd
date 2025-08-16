@@ -83,26 +83,37 @@ lines_virginica <- regression_lines(iris, "virginica")
 
 ### Step 4: Creating the Interactive Plot with Data Points
 
-Creates a scatter plot of Sepal.Length vs Petal.Length and includes a filter for species.
+Creates separate scatter traces for each species (robust for RStudio and HTML export) so the dropdown can toggle visibility deterministically.
 
 ```{r}
-fig <- plot_ly(
-  data = iris,                                              # Data source
-  x = ~Sepal.Length,                                       # X-axis: Sepal Length
-  y = ~Petal.Length,                                       # Y-axis: Petal Length
-  color = ~Species,                                        # Color by Species
-  colors = c('blue', 'orange', 'green'),                   # Define colors for each species
-  type = 'scatter',                                        # Specify the plot type as scatter
-  mode = 'markers',                                        # Display markers
-  transforms = list(
-    list(
-      type = 'filter',                                      # Add a filter transform
-      target = ~Species,                                    # Target the Species variable
-      operation = '=',                                      # Operation type: equals
-      value = "setosa"                                      # Initial filter value: setosa
-    )
+fig <- plot_ly() %>%
+  add_markers(
+    data = iris %>% filter(Species == "setosa"),          # Setosa points
+    x = ~Sepal.Length,
+    y = ~Petal.Length,
+    type = 'scatter',
+    mode = 'markers',
+    marker = list(color = 'blue'),
+    name = 'Iris-setosa'
+  ) %>%
+  add_markers(
+    data = iris %>% filter(Species == "versicolor"),      # Versicolor points
+    x = ~Sepal.Length,
+    y = ~Petal.Length,
+    type = 'scatter',
+    mode = 'markers',
+    marker = list(color = 'orange'),
+    name = 'Iris-versicolor'
+  ) %>%
+  add_markers(
+    data = iris %>% filter(Species == "virginica"),       # Virginica points
+    x = ~Sepal.Length,
+    y = ~Petal.Length,
+    type = 'scatter',
+    mode = 'markers',
+    marker = list(color = 'green'),
+    name = 'Iris-virginica'
   )
-)
 ```
 
 ### Step 5: Adding Regression Lines to the Plot
@@ -135,7 +146,7 @@ fig <- fig %>%
 
 ### Step 6: Adding Filtering Capabilities to the Plot
 
-Includes a dropdown menu to filter the plot by species or show all data points together.
+Includes a dropdown menu that toggles trace visibility (3 scatter + 3 lines) instead of using filter transforms. This ensures that "All" shows all groups on initial load.
 
 ```{r}
 fig <- fig %>%
@@ -147,30 +158,39 @@ fig <- fig %>%
       list(
         buttons = list(
           list(
-            method = "restyle",                                     # Method to update the plot
-            args = list("transforms[0].value", "setosa"),          # Filter for Setosa
-            label = "Iris-setosa"                                   # Button label
+            method = "update",
+            args = list(
+              list(visible = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE))  # All traces visible
+            ),
+            label = "All"
           ),
           list(
-            method = "restyle",                                     # Method to update the plot
-            args = list("transforms[0].value", "versicolor"),      # Filter for Versicolor
-            label = "Iris-versicolor"                               # Button label
+            method = "update",
+            args = list(
+              list(visible = c(TRUE, FALSE, FALSE, TRUE, FALSE, FALSE)) # Setosa + its line
+            ),
+            label = "Iris-setosa"
           ),
           list(
-            method = "restyle",                                     # Method to update the plot
-            args = list("transforms[0].value", "virginica"),       # Filter for Virginica
-            label = "Iris-virginica"                                # Button label
+            method = "update",
+            args = list(
+              list(visible = c(FALSE, TRUE, FALSE, FALSE, TRUE, FALSE)) # Versicolor + its line
+            ),
+            label = "Iris-versicolor"
           ),
           list(
-            method = "restyle",                                     # Method to update the plot
-            args = list("transforms[0].value", unique(iris$Species)),  # Show all species
-            label = "All"                                           # Button label
+            method = "update",
+            args = list(
+              list(visible = c(FALSE, FALSE, TRUE, FALSE, FALSE, TRUE)) # Virginica + its line
+            ),
+            label = "Iris-virginica"
           )
         ),
-        direction = "down",                                           # Dropdown direction
-        x = 0.1,                                                      # X position of the dropdown
-        y = 1.15,                                                     # Y position of the dropdown
-        showactive = TRUE                                             # Show active button
+        direction = "down",
+        x = 0.1,
+        y = 1.15,
+        showactive = TRUE,
+        active = 0
       )
     )
   )
